@@ -1,6 +1,6 @@
 # DQ DualSight 
 
-![DQ DualSight Dashboard Overview]https://gaet.shinyapps.io/DQDualSight/
+![DQ DualSight Dashboard Overview] https://gaet.shinyapps.io/DQDualSight/
 
 ## Background & Purpose
 
