@@ -1,0 +1,15 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+.Rbuildignore
+.Rprofile
+.Renviron
+.quarto
+renv/
+packrat/
+.vscode/
+.idea/
+*.log
+*/.ipynb_checkpoints/
