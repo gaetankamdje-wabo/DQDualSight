@@ -1,6 +1,6 @@
 # DQ DualSight 
 
-![DQ DualSight Dashboard Overview] https://gaet.shinyapps.io/DQDualSight/
+Demo Version: https://gaet.shinyapps.io/DQDualSight/
 
 ## Background & Purpose
 
@@ -9,11 +9,6 @@ Real‑world electronic health record (EHR) data are heterogeneous and often noi
 It brings together built‑in and study‑specific DQ checks across completeness, plausibility (age/gender), temporal consistency, diagnosis–procedure consistency, and code integrity for ICD‑10‑GM and OPS, then summarizes issues with clear counts and affected‑record rates.
 An optional workbench lets you load an anonymized version of the same dataset to compare distributions and assess fitness‑for‑use to adjust anonymization strategy.
 
-
-
-## Overview (Screenshot)
-
-![DQ DualSight Dashboard overview](media/overview.png)
 
 ## Rationale 
 
@@ -30,7 +25,7 @@ de‑identification may affect analytic utility before data hand‑over.
 
 
 
-A minimal, GitHub-ready folder that ships the **DQ DualSight** Shiny application (single-file `app.R`), demonstration datasets (original + anonymized), and the metadata concept (check catalog). You can clone this, run the app locally, and replace the demo inputs with your own data.
+This GitHub-documentation ships the **DQ DualSight** Shiny application (single-file `app.R`), demonstration datasets (original + anonymized), and the metadata concept (check catalog). So, you can clone this, run the app locally, and replace the demo inputs with your own data.
 
 ## What’s here
 
