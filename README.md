@@ -37,7 +37,7 @@ This GitHub-documentation ships the **DQ DualSight** Shiny application (single-f
 
 ## Quick start
 
-1. Install R ≥ 4.2 and RStudio (optional).
+1. Install R ≥ 4.2 (https://cran.r-project.org/bin/windows/base/) and RStudio (https://posit.co/download/rstudio-desktop/).
 2. Open R in this folder and run:
 
 ```r
