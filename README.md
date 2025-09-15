@@ -1,4 +1,34 @@
-# DQ DualSight — Shiny App Template
+# DQ DualSight 
+
+![DQ DualSight Dashboard Overview](images/overview.png)
+
+## Background & Purpose
+
+Real‑world electronic health record (EHR) data are heterogeneous and often noisy (missing values, implausible timestamps, miscoding).
+**DQ DualSight** is a lightweight, Shiny‑based dashboard that helps clinical and research teams **screen data quality before analysis** and **judge the impact of anonymization** on data utility.
+It unifies built‑in and study‑specific checks across completeness, plausibility (age/sex), temporal consistency, diagnosis–procedure consistency, and code integrity for ICD‑10‑GM and OPS, then summarizes issues with clear counts and affected‑record rates.
+An optional workbench lets you load an anonymized version of the same dataset to compare distributions and assess fitness‑for‑use.
+
+
+
+## Overview (Screenshot)
+
+![DQ DualSight Dashboard overview](media/overview.png)
+
+## Background 
+
+Real‑world EHR data often contain missingness, miscoding, temporal inconsistencies, and other defects that can bias research.
+**DQ DualSight** was created to make pre‑analysis screening practical for clinical teams and data stewards, and to show how
+de‑identification may affect analytic utility before data hand‑over.
+
+## What the tool stands for
+
+**DualSight** reflects the app’s two lenses:
+1) *Data Quality* — built‑in and study‑specific checks across completeness, plausibility (age/sex), temporal consistency,
+   diagnosis–procedure alignment, and code integrity (ICD‑10‑GM/OPS).
+2) *Anonymization Impact* — side‑by‑side comparisons of original vs anonymized datasets to judge fitness‑for‑use.
+
+
 
 A minimal, GitHub-ready folder that ships the **DQ DualSight** Shiny application (single-file `app.R`), demonstration datasets (original + anonymized), and the metadata concept (check catalog). You can clone this, run the app locally, and replace the demo inputs with your own data.
 
