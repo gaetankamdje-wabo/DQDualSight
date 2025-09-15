@@ -1,13 +1,13 @@
 # DQ DualSight 
 
-![DQ DualSight Dashboard Overview](images/overview.png)
+![DQ DualSight Dashboard Overview]https://gaet.shinyapps.io/DQDualSight/
 
 ## Background & Purpose
 
-Real‑world electronic health record (EHR) data are heterogeneous and often noisy (missing values, implausible timestamps, miscoding).
-**DQ DualSight** is a lightweight, Shiny‑based dashboard that helps clinical and research teams **screen data quality before analysis** and **judge the impact of anonymization** on data utility.
-It unifies built‑in and study‑specific checks across completeness, plausibility (age/sex), temporal consistency, diagnosis–procedure consistency, and code integrity for ICD‑10‑GM and OPS, then summarizes issues with clear counts and affected‑record rates.
-An optional workbench lets you load an anonymized version of the same dataset to compare distributions and assess fitness‑for‑use.
+Real‑world electronic health record (EHR) data are heterogeneous and often noisy (missing values, implausible timestamps, miscoding,...).
+**DQ DualSight** is a lightweight, Shiny‑based app that helps clinical and research teams **screen data quality before analysis** and **judge the impact of anonymization** on data utility and fitness at the data element level.
+It brings together built‑in and study‑specific DQ checks across completeness, plausibility (age/gender), temporal consistency, diagnosis–procedure consistency, and code integrity for ICD‑10‑GM and OPS, then summarizes issues with clear counts and affected‑record rates.
+An optional workbench lets you load an anonymized version of the same dataset to compare distributions and assess fitness‑for‑use to adjust anonymization strategy.
 
 
 
@@ -15,7 +15,7 @@ An optional workbench lets you load an anonymized version of the same dataset to
 
 ![DQ DualSight Dashboard overview](media/overview.png)
 
-## Background 
+## Rationale 
 
 Real‑world EHR data often contain missingness, miscoding, temporal inconsistencies, and other defects that can bias research.
 **DQ DualSight** was created to make pre‑analysis screening practical for clinical teams and data stewards, and to show how
