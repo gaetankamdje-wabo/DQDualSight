@@ -75,7 +75,7 @@ DQDualSight/
 ## Demo data at a glance
 
 - `demo_original.csv`: ~300 rows, 10 columns.
-- `demo_anonymized.csv`: ~N/A rows, 0 columns.
+- `demo_anonymized.csv`: ~300 rows, 9 columns (because of anonymization).
 
 See `data/README.md` for an inferred schema and usage notes.
 
