@@ -9,6 +9,7 @@ This folder contains demonstration datasets for the DQ DualSight app.
 
 - `demo_original.csv`: ~300 rows, 10 columns.
 - `demo_anonymized.csv`: ~300 rows, 9 columns.
+- `json_test_data.json`: JSON test datasets
 
 ## Inferred schema (original)
 

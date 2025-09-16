@@ -1,0 +1,1002 @@
+[
+  {
+    "patient_id": "P0001",
+    "gender": "D",
+    "age": 14,
+    "admission_date": "2021-03-19",
+    "discharge_date": "2021-03-28",
+    "icd": "J18.9",
+    "ops": "8-98b.0",
+    "anamnese": "Belastungsabhängige Thoraxschmerzen seit gestern Abend."
+  },
+  {
+    "patient_id": "P0002",
+    "gender": "D",
+    "age": 94,
+    "admission_date": "2025-08-22",
+    "discharge_date": "2025-08-25",
+    "icd": "I10",
+    "ops": "5-820.0",
+    "anamnese": "Belastungsabhängige Thoraxschmerzen seit gestern Abend."
+  },
+  {
+    "patient_id": "P0003",
+    "gender": "M",
+    "age": 29,
+    "admission_date": "2025-04-20",
+    "discharge_date": "2025-05-09",
+    "icd": "K35.8",
+    "ops": "8-98b.0",
+    "anamnese": "Postoperative Kontrolle ohne Komplikationen."
+  },
+  {
+    "patient_id": "P0004",
+    "gender": "F",
+    "age": 28,
+    "admission_date": "2024-10-27",
+    "discharge_date": "2024-11-15",
+    "icd": "Z51.1",
+    "ops": "5-820.0",
+    "anamnese": "Sturz im Haushalt, Schmerzen im rechten Knie."
+  },
+  {
+    "patient_id": "P0005",
+    "gender": "D",
+    "age": 54,
+    "admission_date": "2023-11-24",
+    "discharge_date": "2023-12-02",
+    "icd": "R99",
+    "ops": "5-449.1",
+    "anamnese": "Belastungsabhängige Thoraxschmerzen seit gestern Abend."
+  },
+  {
+    "patient_id": "P0006",
+    "gender": "M",
+    "age": 48,
+    "admission_date": "2021-10-28",
+    "discharge_date": "2021-11-08",
+    "icd": "N39.0",
+    "ops": "8-800.0",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0007",
+    "gender": "D",
+    "age": 58,
+    "admission_date": "2025-07-25",
+    "discharge_date": "2025-07-28",
+    "icd": "A09",
+    "ops": "1-275.0",
+    "anamnese": "Routineuntersuchung, keine aktuellen Beschwerden."
+  },
+  {
+    "patient_id": "P0008",
+    "gender": "F",
+    "age": 73,
+    "admission_date": "2022-08-21",
+    "discharge_date": "2022-08-23",
+    "icd": "K35.8",
+    "ops": "8-800.0",
+    "anamnese": "Akuter Bauchschmerz, Übelkeit und Erbrechen seit dem Morgen."
+  },
+  {
+    "patient_id": "P0009",
+    "gender": "M",
+    "age": 29,
+    "admission_date": "2021-11-10",
+    "discharge_date": "2021-11-23",
+    "icd": "Z00.0",
+    "ops": "5-790.1",
+    "anamnese": "Bekannte Hypertonie, Medikamente regelmäßig eingenommen."
+  },
+  {
+    "patient_id": "P0010",
+    "gender": "M",
+    "age": 47,
+    "admission_date": "2024-01-09",
+    "discharge_date": "2024-01-16",
+    "icd": "R10.4",
+    "ops": "1-811",
+    "anamnese": "Belastungsabhängige Thoraxschmerzen seit gestern Abend."
+  },
+  {
+    "patient_id": "P0011",
+    "gender": "D",
+    "age": 81,
+    "admission_date": "2022-06-16",
+    "discharge_date": "2022-07-04",
+    "icd": "J18.9",
+    "ops": "3-200",
+    "anamnese": "Diabetes mellitus Typ 2, Blutzuckerwerte schwankend."
+  },
+  {
+    "patient_id": "P0012",
+    "gender": "F",
+    "age": 81,
+    "admission_date": "2022-11-14",
+    "discharge_date": "2022-11-24",
+    "icd": "Z51.1",
+    "ops": "5-820.0",
+    "anamnese": "Bekannte Hypertonie, Medikamente regelmäßig eingenommen."
+  },
+  {
+    "patient_id": "P0013",
+    "gender": "F",
+    "age": 34,
+    "admission_date": "2021-07-25",
+    "discharge_date": "2021-08-01",
+    "icd": "R10.4",
+    "ops": "5-449.1",
+    "anamnese": "Seit Wochen zunehmende Müdigkeit und Schwindel."
+  },
+  {
+    "patient_id": "P0014",
+    "gender": "D",
+    "age": 63,
+    "admission_date": "2024-05-14",
+    "discharge_date": "2024-06-03",
+    "icd": "N39.0",
+    "ops": "5-893.0",
+    "anamnese": "Seit Wochen zunehmende Müdigkeit und Schwindel."
+  },
+  {
+    "patient_id": "P0015",
+    "gender": "D",
+    "age": 71,
+    "admission_date": "2025-08-02",
+    "discharge_date": "2025-08-11",
+    "icd": "F32.9",
+    "ops": "1-811",
+    "anamnese": "Routineuntersuchung, keine aktuellen Beschwerden."
+  },
+  {
+    "patient_id": "P0016",
+    "gender": "F",
+    "age": 46,
+    "admission_date": "2022-11-13",
+    "discharge_date": "2022-11-18",
+    "icd": "E11.9",
+    "ops": "8-800.0",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0017",
+    "gender": "M",
+    "age": 19,
+    "admission_date": "2022-05-13",
+    "discharge_date": "2022-05-26",
+    "icd": "F32.9",
+    "ops": "1-275.2",
+    "anamnese": "Routineuntersuchung, keine aktuellen Beschwerden."
+  },
+  {
+    "patient_id": "P0018",
+    "gender": "F",
+    "age": 67,
+    "admission_date": "2023-02-21",
+    "discharge_date": "2023-03-10",
+    "icd": "R10.4",
+    "ops": "5-381.0",
+    "anamnese": "Postoperative Kontrolle ohne Komplikationen."
+  },
+  {
+    "patient_id": "P0019",
+    "gender": "F",
+    "age": 82,
+    "admission_date": "2023-11-23",
+    "discharge_date": "2023-11-27",
+    "icd": "J18.9",
+    "ops": "3-200",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0020",
+    "gender": "D",
+    "age": 92,
+    "admission_date": "2023-03-30",
+    "discharge_date": "2023-04-15",
+    "icd": "C34.9",
+    "ops": "5-381.0",
+    "anamnese": "Akuter Bauchschmerz, Übelkeit und Erbrechen seit dem Morgen."
+  },
+  {
+    "patient_id": "P0021",
+    "gender": "D",
+    "age": 64,
+    "admission_date": "2022-09-10",
+    "discharge_date": "2022-09-15",
+    "icd": "J18.9",
+    "ops": "8-98c.0",
+    "anamnese": "Postoperative Kontrolle ohne Komplikationen."
+  },
+  {
+    "patient_id": "P0022",
+    "gender": "M",
+    "age": 76,
+    "admission_date": "2023-10-05",
+    "discharge_date": "2023-10-20",
+    "icd": "C34.9",
+    "ops": "5-449.1",
+    "anamnese": "Akuter Bauchschmerz, Übelkeit und Erbrechen seit dem Morgen."
+  },
+  {
+    "patient_id": "P0023",
+    "gender": "M",
+    "age": 7,
+    "admission_date": "2023-01-19",
+    "discharge_date": "2023-02-06",
+    "icd": "R10.4",
+    "ops": "3-200",
+    "anamnese": "Belastungsabhängige Thoraxschmerzen seit gestern Abend."
+  },
+  {
+    "patient_id": "P0024",
+    "gender": "D",
+    "age": 16,
+    "admission_date": "2022-02-03",
+    "discharge_date": "2022-02-19",
+    "icd": "N39.0",
+    "ops": "8-98c.0",
+    "anamnese": "Routineuntersuchung, keine aktuellen Beschwerden."
+  },
+  {
+    "patient_id": "P0025",
+    "gender": "F",
+    "age": 27,
+    "admission_date": "2025-08-03",
+    "discharge_date": "2025-08-10",
+    "icd": "F32.9",
+    "ops": "5-470.3",
+    "anamnese": "Bekannte Hypertonie, Medikamente regelmäßig eingenommen."
+  },
+  {
+    "patient_id": "P0026",
+    "gender": "F",
+    "age": 66,
+    "admission_date": "2024-11-03",
+    "discharge_date": "2024-11-07",
+    "icd": "E11.9",
+    "ops": "5-449.1",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0027",
+    "gender": "D",
+    "age": 70,
+    "admission_date": "2022-12-16",
+    "discharge_date": "2023-01-04",
+    "icd": "E11.9",
+    "ops": "8-98b.0",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0028",
+    "gender": "M",
+    "age": 8,
+    "admission_date": "2021-04-08",
+    "discharge_date": "2021-04-18",
+    "icd": "K35.8",
+    "ops": "1-275.0",
+    "anamnese": "Atemnot bei Belastung, kein Auswurf."
+  },
+  {
+    "patient_id": "P0029",
+    "gender": "M",
+    "age": 69,
+    "admission_date": "2022-02-16",
+    "discharge_date": "2022-03-06",
+    "icd": "K35.8",
+    "ops": "8-800.0",
+    "anamnese": "Atemnot bei Belastung, kein Auswurf."
+  },
+  {
+    "patient_id": "P0030",
+    "gender": "F",
+    "age": 24,
+    "admission_date": "2021-10-21",
+    "discharge_date": "2021-10-24",
+    "icd": "M54.5",
+    "ops": "1-275.2",
+    "anamnese": "Diabetes mellitus Typ 2, Blutzuckerwerte schwankend."
+  },
+  {
+    "patient_id": "P0031",
+    "gender": "F",
+    "age": 93,
+    "admission_date": "2021-06-18",
+    "discharge_date": "2021-07-09",
+    "icd": "I10",
+    "ops": "1-275.2",
+    "anamnese": "Bekannte Hypertonie, Medikamente regelmäßig eingenommen."
+  },
+  {
+    "patient_id": "P0032",
+    "gender": "M",
+    "age": 31,
+    "admission_date": "2022-08-19",
+    "discharge_date": "2022-08-25",
+    "icd": "J18.9",
+    "ops": "1-275.2",
+    "anamnese": "Sturz im Haushalt, Schmerzen im rechten Knie."
+  },
+  {
+    "patient_id": "P0033",
+    "gender": "F",
+    "age": 59,
+    "admission_date": "2023-02-16",
+    "discharge_date": "2023-02-18",
+    "icd": "Z51.1",
+    "ops": "5-790.1",
+    "anamnese": "Postoperative Kontrolle ohne Komplikationen."
+  },
+  {
+    "patient_id": "P0034",
+    "gender": "M",
+    "age": 6,
+    "admission_date": "2025-08-07",
+    "discharge_date": "2025-08-07",
+    "icd": "R99",
+    "ops": "5-790.1",
+    "anamnese": "Seit Wochen zunehmende Müdigkeit und Schwindel."
+  },
+  {
+    "patient_id": "P0035",
+    "gender": "M",
+    "age": 52,
+    "admission_date": "2025-02-17",
+    "discharge_date": "2025-03-05",
+    "icd": "F32.9",
+    "ops": "1-811",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0036",
+    "gender": "M",
+    "age": 48,
+    "admission_date": "2021-01-07",
+    "discharge_date": "2021-01-20",
+    "icd": "R99",
+    "ops": "8-800.0",
+    "anamnese": "Atemnot bei Belastung, kein Auswurf."
+  },
+  {
+    "patient_id": "P0037",
+    "gender": "F",
+    "age": 54,
+    "admission_date": "2025-02-21",
+    "discharge_date": "2025-02-25",
+    "icd": "K35.8",
+    "ops": "5-820.0",
+    "anamnese": "Routineuntersuchung, keine aktuellen Beschwerden."
+  },
+  {
+    "patient_id": "P0038",
+    "gender": "D",
+    "age": 69,
+    "admission_date": "2021-07-09",
+    "discharge_date": "2021-07-19",
+    "icd": "G45.9",
+    "ops": "3-200",
+    "anamnese": "Postoperative Kontrolle ohne Komplikationen."
+  },
+  {
+    "patient_id": "P0039",
+    "gender": "D",
+    "age": 20,
+    "admission_date": "2021-06-26",
+    "discharge_date": "2021-07-12",
+    "icd": "J18.9",
+    "ops": "5-381.0",
+    "anamnese": "Routineuntersuchung, keine aktuellen Beschwerden."
+  },
+  {
+    "patient_id": "P0040",
+    "gender": "M",
+    "age": 86,
+    "admission_date": "2023-01-01",
+    "discharge_date": "2023-01-13",
+    "icd": "G45.9",
+    "ops": "8-98f.0",
+    "anamnese": "Routineuntersuchung, keine aktuellen Beschwerden."
+  },
+  {
+    "patient_id": "P0041",
+    "gender": "D",
+    "age": 5,
+    "admission_date": "2021-09-12",
+    "discharge_date": "2021-09-26",
+    "icd": "G45.9",
+    "ops": "8-98c.0",
+    "anamnese": "Bekannte Hypertonie, Medikamente regelmäßig eingenommen."
+  },
+  {
+    "patient_id": "P0042",
+    "gender": "F",
+    "age": 26,
+    "admission_date": "2023-09-04",
+    "discharge_date": "2023-09-11",
+    "icd": "J18.9",
+    "ops": "5-470.3",
+    "anamnese": "Akuter Bauchschmerz, Übelkeit und Erbrechen seit dem Morgen."
+  },
+  {
+    "patient_id": "P0043",
+    "gender": "F",
+    "age": 40,
+    "admission_date": "2021-08-14",
+    "discharge_date": "2021-08-14",
+    "icd": "G45.9",
+    "ops": "5-381.0",
+    "anamnese": "Belastungsabhängige Thoraxschmerzen seit gestern Abend."
+  },
+  {
+    "patient_id": "P0044",
+    "gender": "D",
+    "age": 27,
+    "admission_date": "2025-04-21",
+    "discharge_date": "2025-04-29",
+    "icd": "M54.5",
+    "ops": "1-811",
+    "anamnese": "Belastungsabhängige Thoraxschmerzen seit gestern Abend."
+  },
+  {
+    "patient_id": "P0045",
+    "gender": "M",
+    "age": 47,
+    "admission_date": "2023-06-05",
+    "discharge_date": "2023-06-11",
+    "icd": "A09",
+    "ops": "8-98b.0",
+    "anamnese": "Akuter Bauchschmerz, Übelkeit und Erbrechen seit dem Morgen."
+  },
+  {
+    "patient_id": "P0046",
+    "gender": "D",
+    "age": 83,
+    "admission_date": "2025-07-02",
+    "discharge_date": "2025-07-03",
+    "icd": "A09",
+    "ops": "1-275.0",
+    "anamnese": "Belastungsabhängige Thoraxschmerzen seit gestern Abend."
+  },
+  {
+    "patient_id": "P0047",
+    "gender": "M",
+    "age": 33,
+    "admission_date": "2021-12-25",
+    "discharge_date": "2021-12-29",
+    "icd": "J18.9",
+    "ops": "1-275.0",
+    "anamnese": "Akuter Bauchschmerz, Übelkeit und Erbrechen seit dem Morgen."
+  },
+  {
+    "patient_id": "P0048",
+    "gender": "D",
+    "age": 26,
+    "admission_date": "2023-12-02",
+    "discharge_date": "2023-12-09",
+    "icd": "Z51.1",
+    "ops": "1-275.0",
+    "anamnese": "Postoperative Kontrolle ohne Komplikationen."
+  },
+  {
+    "patient_id": "P0049",
+    "gender": "F",
+    "age": 32,
+    "admission_date": "2021-06-07",
+    "discharge_date": "2021-06-10",
+    "icd": "Z51.1",
+    "ops": "1-275.0",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0050",
+    "gender": "M",
+    "age": 42,
+    "admission_date": "2022-02-11",
+    "discharge_date": "2022-03-03",
+    "icd": "R10.4",
+    "ops": "3-200",
+    "anamnese": "Postoperative Kontrolle ohne Komplikationen."
+  },
+  {
+    "patient_id": "P0051",
+    "gender": "D",
+    "age": 54,
+    "admission_date": "2021-01-31",
+    "discharge_date": "2021-02-03",
+    "icd": "R10.4",
+    "ops": "1-811",
+    "anamnese": "Sturz im Haushalt, Schmerzen im rechten Knie."
+  },
+  {
+    "patient_id": "P0052",
+    "gender": "D",
+    "age": 4,
+    "admission_date": "2024-02-22",
+    "discharge_date": "2024-03-11",
+    "icd": "F32.9",
+    "ops": "5-893.0",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0053",
+    "gender": "F",
+    "age": 46,
+    "admission_date": "2021-05-04",
+    "discharge_date": "2021-05-16",
+    "icd": "K35.8",
+    "ops": "5-470.3",
+    "anamnese": "Belastungsabhängige Thoraxschmerzen seit gestern Abend."
+  },
+  {
+    "patient_id": "P0054",
+    "gender": "F",
+    "age": 71,
+    "admission_date": "2024-06-16",
+    "discharge_date": "2024-07-06",
+    "icd": "C34.9",
+    "ops": "1-811",
+    "anamnese": "Seit Wochen zunehmende Müdigkeit und Schwindel."
+  },
+  {
+    "patient_id": "P0055",
+    "gender": "M",
+    "age": 22,
+    "admission_date": "2024-07-04",
+    "discharge_date": "2024-07-05",
+    "icd": "C34.9",
+    "ops": "5-449.1",
+    "anamnese": "Diabetes mellitus Typ 2, Blutzuckerwerte schwankend."
+  },
+  {
+    "patient_id": "P0056",
+    "gender": "D",
+    "age": 94,
+    "admission_date": "2023-02-11",
+    "discharge_date": "2023-02-19",
+    "icd": "R10.4",
+    "ops": "5-381.0",
+    "anamnese": "Diabetes mellitus Typ 2, Blutzuckerwerte schwankend."
+  },
+  {
+    "patient_id": "P0057",
+    "gender": "M",
+    "age": 60,
+    "admission_date": "2022-11-23",
+    "discharge_date": "2022-11-29",
+    "icd": "N39.0",
+    "ops": "5-790.1",
+    "anamnese": "Seit Wochen zunehmende Müdigkeit und Schwindel."
+  },
+  {
+    "patient_id": "P0058",
+    "gender": "M",
+    "age": 3,
+    "admission_date": "2022-08-24",
+    "discharge_date": "2022-09-05",
+    "icd": "Z51.1",
+    "ops": "5-381.0",
+    "anamnese": "Akuter Bauchschmerz, Übelkeit und Erbrechen seit dem Morgen."
+  },
+  {
+    "patient_id": "P0059",
+    "gender": "F",
+    "age": 82,
+    "admission_date": "2025-05-02",
+    "discharge_date": "2025-05-15",
+    "icd": "A09",
+    "ops": "5-449.1",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0060",
+    "gender": "M",
+    "age": 33,
+    "admission_date": "2022-07-09",
+    "discharge_date": "2022-07-28",
+    "icd": "E11.9",
+    "ops": "5-360.0",
+    "anamnese": "Diabetes mellitus Typ 2, Blutzuckerwerte schwankend."
+  },
+  {
+    "patient_id": "P0061",
+    "gender": "F",
+    "age": 93,
+    "admission_date": "2023-09-02",
+    "discharge_date": "2023-09-16",
+    "icd": "E11.9",
+    "ops": "1-275.2",
+    "anamnese": "Routineuntersuchung, keine aktuellen Beschwerden."
+  },
+  {
+    "patient_id": "P0062",
+    "gender": "M",
+    "age": 32,
+    "admission_date": "2021-05-18",
+    "discharge_date": "2021-05-31",
+    "icd": "C34.9",
+    "ops": "8-800.0",
+    "anamnese": "Postoperative Kontrolle ohne Komplikationen."
+  },
+  {
+    "patient_id": "P0063",
+    "gender": "D",
+    "age": 92,
+    "admission_date": "2022-09-05",
+    "discharge_date": "2022-09-16",
+    "icd": "Z00.0",
+    "ops": "1-811",
+    "anamnese": "Bekannte Hypertonie, Medikamente regelmäßig eingenommen."
+  },
+  {
+    "patient_id": "P0064",
+    "gender": "D",
+    "age": 40,
+    "admission_date": "2022-01-23",
+    "discharge_date": "2022-02-01",
+    "icd": "Z00.0",
+    "ops": "1-275.2",
+    "anamnese": "Bekannte Hypertonie, Medikamente regelmäßig eingenommen."
+  },
+  {
+    "patient_id": "P0065",
+    "gender": "F",
+    "age": 89,
+    "admission_date": "2023-07-08",
+    "discharge_date": "2023-07-25",
+    "icd": "F32.9",
+    "ops": "5-470.3",
+    "anamnese": "Diabetes mellitus Typ 2, Blutzuckerwerte schwankend."
+  },
+  {
+    "patient_id": "P0066",
+    "gender": "D",
+    "age": 95,
+    "admission_date": "2022-06-25",
+    "discharge_date": "2022-07-15",
+    "icd": "F32.9",
+    "ops": "8-98c.0",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0067",
+    "gender": "F",
+    "age": 36,
+    "admission_date": "2022-10-16",
+    "discharge_date": "2022-10-29",
+    "icd": "Z00.0",
+    "ops": "5-449.1",
+    "anamnese": "Atemnot bei Belastung, kein Auswurf."
+  },
+  {
+    "patient_id": "P0068",
+    "gender": "F",
+    "age": 56,
+    "admission_date": "2022-10-26",
+    "discharge_date": "2022-11-12",
+    "icd": "C34.9",
+    "ops": "8-800.0",
+    "anamnese": "Sturz im Haushalt, Schmerzen im rechten Knie."
+  },
+  {
+    "patient_id": "P0069",
+    "gender": "D",
+    "age": 10,
+    "admission_date": "2023-06-01",
+    "discharge_date": "2023-06-18",
+    "icd": "G45.9",
+    "ops": "5-449.1",
+    "anamnese": "Belastungsabhängige Thoraxschmerzen seit gestern Abend."
+  },
+  {
+    "patient_id": "P0070",
+    "gender": "M",
+    "age": 86,
+    "admission_date": "2023-08-23",
+    "discharge_date": "2023-08-30",
+    "icd": "I10",
+    "ops": "5-820.0",
+    "anamnese": "Seit Wochen zunehmende Müdigkeit und Schwindel."
+  },
+  {
+    "patient_id": "P0071",
+    "gender": "F",
+    "age": 78,
+    "admission_date": "2021-08-15",
+    "discharge_date": "2021-08-29",
+    "icd": "Z00.0",
+    "ops": "5-360.0",
+    "anamnese": "Seit Wochen zunehmende Müdigkeit und Schwindel."
+  },
+  {
+    "patient_id": "P0072",
+    "gender": "D",
+    "age": 89,
+    "admission_date": "2024-04-07",
+    "discharge_date": "2024-04-23",
+    "icd": "J18.9",
+    "ops": "5-470.3",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0073",
+    "gender": "M",
+    "age": 54,
+    "admission_date": "2022-11-11",
+    "discharge_date": "2022-11-17",
+    "icd": "S06.0",
+    "ops": "5-820.0",
+    "anamnese": "Postoperative Kontrolle ohne Komplikationen."
+  },
+  {
+    "patient_id": "P0074",
+    "gender": "M",
+    "age": 15,
+    "admission_date": "2024-11-19",
+    "discharge_date": "2024-11-23",
+    "icd": "A09",
+    "ops": "8-98c.0",
+    "anamnese": "Routineuntersuchung, keine aktuellen Beschwerden."
+  },
+  {
+    "patient_id": "P0075",
+    "gender": "F",
+    "age": 56,
+    "admission_date": "2025-04-18",
+    "discharge_date": "2025-05-02",
+    "icd": "C34.9",
+    "ops": "5-893.0",
+    "anamnese": "Atemnot bei Belastung, kein Auswurf."
+  },
+  {
+    "patient_id": "P0076",
+    "gender": "F",
+    "age": 33,
+    "admission_date": "2023-02-08",
+    "discharge_date": "2023-02-28",
+    "icd": "R99",
+    "ops": "8-98c.0",
+    "anamnese": "Atemnot bei Belastung, kein Auswurf."
+  },
+  {
+    "patient_id": "P0077",
+    "gender": "D",
+    "age": 30,
+    "admission_date": "2023-05-04",
+    "discharge_date": "2023-05-18",
+    "icd": "N39.0",
+    "ops": "8-98f.0",
+    "anamnese": "Akuter Bauchschmerz, Übelkeit und Erbrechen seit dem Morgen."
+  },
+  {
+    "patient_id": "P0078",
+    "gender": "F",
+    "age": 40,
+    "admission_date": "2025-08-06",
+    "discharge_date": "2025-08-08",
+    "icd": "K35.8",
+    "ops": "1-275.2",
+    "anamnese": "Sturz im Haushalt, Schmerzen im rechten Knie."
+  },
+  {
+    "patient_id": "P0079",
+    "gender": "D",
+    "age": 27,
+    "admission_date": "2021-07-19",
+    "discharge_date": "2021-08-02",
+    "icd": "A09",
+    "ops": "3-200",
+    "anamnese": "Diabetes mellitus Typ 2, Blutzuckerwerte schwankend."
+  },
+  {
+    "patient_id": "P0080",
+    "gender": "M",
+    "age": 26,
+    "admission_date": "2024-07-29",
+    "discharge_date": "2024-08-11",
+    "icd": "I10",
+    "ops": "5-790.1",
+    "anamnese": "Routineuntersuchung, keine aktuellen Beschwerden."
+  },
+  {
+    "patient_id": "P0081",
+    "gender": "F",
+    "age": 61,
+    "admission_date": "2021-01-19",
+    "discharge_date": "2021-01-30",
+    "icd": "F32.9",
+    "ops": "5-790.1",
+    "anamnese": "Diabetes mellitus Typ 2, Blutzuckerwerte schwankend."
+  },
+  {
+    "patient_id": "P0082",
+    "gender": "D",
+    "age": 95,
+    "admission_date": "2025-08-24",
+    "discharge_date": "2025-09-13",
+    "icd": "K35.8",
+    "ops": "1-275.0",
+    "anamnese": "Diabetes mellitus Typ 2, Blutzuckerwerte schwankend."
+  },
+  {
+    "patient_id": "P0083",
+    "gender": "F",
+    "age": 3,
+    "admission_date": "2024-04-23",
+    "discharge_date": "2024-05-04",
+    "icd": "R99",
+    "ops": "1-275.2",
+    "anamnese": "Sturz im Haushalt, Schmerzen im rechten Knie."
+  },
+  {
+    "patient_id": "P0084",
+    "gender": "F",
+    "age": 16,
+    "admission_date": "2025-07-18",
+    "discharge_date": "2025-07-18",
+    "icd": "G45.9",
+    "ops": "5-470.3",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0085",
+    "gender": "M",
+    "age": 82,
+    "admission_date": "2024-08-24",
+    "discharge_date": "2024-08-29",
+    "icd": "I10",
+    "ops": "1-275.0",
+    "anamnese": "Diabetes mellitus Typ 2, Blutzuckerwerte schwankend."
+  },
+  {
+    "patient_id": "P0086",
+    "gender": "F",
+    "age": 27,
+    "admission_date": "2024-11-13",
+    "discharge_date": "2024-11-24",
+    "icd": "C34.9",
+    "ops": "1-275.2",
+    "anamnese": "Akuter Bauchschmerz, Übelkeit und Erbrechen seit dem Morgen."
+  },
+  {
+    "patient_id": "P0087",
+    "gender": "F",
+    "age": 32,
+    "admission_date": "2021-09-12",
+    "discharge_date": "2021-09-27",
+    "icd": "A09",
+    "ops": "5-820.0",
+    "anamnese": "Bekannte Hypertonie, Medikamente regelmäßig eingenommen."
+  },
+  {
+    "patient_id": "P0088",
+    "gender": "M",
+    "age": 83,
+    "admission_date": "2021-08-02",
+    "discharge_date": "2021-08-22",
+    "icd": "I10",
+    "ops": "8-98f.0",
+    "anamnese": "Seit Wochen zunehmende Müdigkeit und Schwindel."
+  },
+  {
+    "patient_id": "P0089",
+    "gender": "M",
+    "age": 79,
+    "admission_date": "2022-04-19",
+    "discharge_date": "2022-04-26",
+    "icd": "Z00.0",
+    "ops": "5-381.0",
+    "anamnese": "Routineuntersuchung, keine aktuellen Beschwerden."
+  },
+  {
+    "patient_id": "P0090",
+    "gender": "M",
+    "age": 59,
+    "admission_date": "2023-03-08",
+    "discharge_date": "2023-03-19",
+    "icd": "G45.9",
+    "ops": "8-98b.0",
+    "anamnese": "Belastungsabhängige Thoraxschmerzen seit gestern Abend."
+  },
+  {
+    "patient_id": "P0091",
+    "gender": "M",
+    "age": 39,
+    "admission_date": "2021-12-02",
+    "discharge_date": "2021-12-20",
+    "icd": "N39.0",
+    "ops": "5-360.0",
+    "anamnese": "Diabetes mellitus Typ 2, Blutzuckerwerte schwankend."
+  },
+  {
+    "patient_id": "P0092",
+    "gender": "F",
+    "age": 91,
+    "admission_date": "2022-09-09",
+    "discharge_date": "2022-09-11",
+    "icd": "Z51.1",
+    "ops": "5-470.3",
+    "anamnese": "Seit Wochen zunehmende Müdigkeit und Schwindel."
+  },
+  {
+    "patient_id": "P0093",
+    "gender": "M",
+    "age": 89,
+    "admission_date": "2023-07-26",
+    "discharge_date": "2023-08-15",
+    "icd": "G45.9",
+    "ops": "8-800.0",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0094",
+    "gender": "F",
+    "age": 68,
+    "admission_date": "2024-08-23",
+    "discharge_date": "2024-09-04",
+    "icd": "Z00.0",
+    "ops": "5-449.1",
+    "anamnese": "Patient klagt über seit zwei Tagen bestehenden Husten und Fieber."
+  },
+  {
+    "patient_id": "P0095",
+    "gender": "F",
+    "age": 62,
+    "admission_date": "2021-11-24",
+    "discharge_date": "2021-12-08",
+    "icd": "C34.9",
+    "ops": "5-790.1",
+    "anamnese": "Atemnot bei Belastung, kein Auswurf."
+  },
+  {
+    "patient_id": "P0096",
+    "gender": "D",
+    "age": 19,
+    "admission_date": "2024-09-15",
+    "discharge_date": "2024-09-20",
+    "icd": "Z00.0",
+    "ops": "1-275.0",
+    "anamnese": "Routineuntersuchung, keine aktuellen Beschwerden."
+  },
+  {
+    "patient_id": "P0097",
+    "gender": "D",
+    "age": 61,
+    "admission_date": "2024-12-15",
+    "discharge_date": "2024-12-29",
+    "icd": "N39.0",
+    "ops": "5-449.1",
+    "anamnese": "Seit Wochen zunehmende Müdigkeit und Schwindel."
+  },
+  {
+    "patient_id": "P0098",
+    "gender": "M",
+    "age": 35,
+    "admission_date": "2024-11-01",
+    "discharge_date": "2024-11-09",
+    "icd": "G45.9",
+    "ops": "5-470.3",
+    "anamnese": "Diabetes mellitus Typ 2, Blutzuckerwerte schwankend."
+  },
+  {
+    "patient_id": "P0099",
+    "gender": "F",
+    "age": 3,
+    "admission_date": "2025-03-16",
+    "discharge_date": "2025-03-26",
+    "icd": "K35.8",
+    "ops": "5-449.1",
+    "anamnese": "Akuter Bauchschmerz, Übelkeit und Erbrechen seit dem Morgen."
+  },
+  {
+    "patient_id": "P0100",
+    "gender": "F",
+    "age": 35,
+    "admission_date": "2023-05-09",
+    "discharge_date": "2023-05-26",
+    "icd": "K35.8",
+    "ops": "5-381.0",
+    "anamnese": "Seit Wochen zunehmende Müdigkeit und Schwindel."
+  }
+]

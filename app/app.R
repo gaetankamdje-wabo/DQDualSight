@@ -17,8 +17,8 @@
 # Correspondence: gaetankamdje.wabo@medma.uni-heidelberg.de
 #
 # Intended use / scope
-# • Research data screening prior to data analysis, study handover, or
-#   secondary analysis. Finding the appropriate anonymization strategy.
+# • Research data screening prior to cohort extraction, study handover, or
+#   secondary analysis.
 # • Local QA by clinical and data management teams, with optional assessment
 #   of anonymization effects on key variables (distributional shifts, loss of
 #   granularity, added missingness).
@@ -138,6 +138,193 @@ library(shinyWidgets)
 library(rintrojs)
 library(waiter)
 library(shinyjqui)
+
+# ===================== ROBUST JSON / FHIR READERS (DROP-IN) =====================
+
+# Safely flatten any list-of-lists to a rectangular data.frame
+as_rectangular <- function(x) {
+  if (is.data.frame(x)) return(as.data.frame(x))
+  if (is.null(x))       return(data.frame())
+  # If top-level has a common key that holds the records, descend into it
+  for (k in c("data","results","items","records","entry","hits","rows")) {
+    if (is.list(x) && !is.null(x[[k]])) return(as_rectangular(x[[k]]))
+  }
+  # List of homogeneous objects → rbind
+  if (is.list(x)) {
+    try({
+      lst <- lapply(x, function(e) as.data.frame(jsonlite::flatten(e), stringsAsFactors = FALSE))
+      df  <- data.table::rbindlist(lst, fill = TRUE)
+      return(as.data.frame(df))
+    }, silent = TRUE)
+  }
+  # Last resort
+  as.data.frame(x, stringsAsFactors = FALSE)
+}
+
+# Read standard JSON OR NDJSON (JSON Lines) and return a rectangular data.frame
+read_json_tabular <- function(path) {
+  # 1) Try standard JSON
+  df <- tryCatch({
+    obj <- jsonlite::fromJSON(path, flatten = TRUE)
+    as_rectangular(obj)
+  }, error = function(e) NULL)
+  
+  # 2) Try NDJSON (streaming)
+  if (is.null(df) || (!is.data.frame(df)) || nrow(df) == 0) {
+    con <- file(path, open = "r")
+    on.exit(close(con), add = TRUE)
+    df <- tryCatch({
+      jsonlite::stream_in(con, flatten = TRUE, verbose = FALSE)
+    }, error = function(e) NULL)
+  }
+  
+  # 3) Try JSON Lines by hand (each line is a JSON object)
+  if (is.null(df) || (!is.data.frame(df)) || nrow(df) == 0) {
+    lines <- readLines(path, warn = FALSE)
+    recs <- lapply(lines[nzchar(lines)], function(z) {
+      tryCatch(jsonlite::fromJSON(z, flatten = TRUE), error = function(e) NULL)
+    })
+    recs <- recs[!vapply(recs, is.null, logical(1))]
+    if (length(recs)) {
+      df <- as.data.frame(data.table::rbindlist(
+        lapply(recs, function(e) as.data.frame(jsonlite::flatten(e), stringsAsFactors = FALSE)),
+        fill = TRUE
+      ))
+    }
+  }
+  
+  if (is.null(df) || (!is.data.frame(df)) || nrow(df) == 0) {
+    stop("Could not parse JSON or NDJSON into a rectangular table.")
+  }
+  df
+}
+
+# ------- FHIR Bundle (JSON) → rectangular table (Patient + Encounter anchor) ------
+# Supports resourceType="Bundle" with entry[].resource of types Patient|Encounter|Condition|Procedure
+read_fhir_tabular <- function(path) {
+  # Parse as raw list to keep the FHIR structure
+  bundle <- jsonlite::fromJSON(path, simplifyVector = FALSE)
+  if (!is.list(bundle)) stop("FHIR JSON not recognized.")
+  # If it's already a resource, great; else expect Bundle with entry
+  resources <- if (!is.null(bundle$entry)) {
+    lapply(bundle$entry, `[[`, "resource")
+  } else {
+    list(bundle)
+  }
+  
+  # Collect by type --------------------------------------------------------------
+  patients   <- lapply(resources, function(r) if (identical(r$resourceType, "Patient"))   r else NULL)
+  encounters <- lapply(resources, function(r) if (identical(r$resourceType, "Encounter")) r else NULL)
+  conds      <- lapply(resources, function(r) if (identical(r$resourceType, "Condition")) r else NULL)
+  procs      <- lapply(resources, function(r) if (identical(r$resourceType, "Procedure")) r else NULL)
+  
+  patients   <- patients[!vapply(patients, is.null, logical(1))]
+  encounters <- encounters[!vapply(encounters, is.null, logical(1))]
+  conds      <- conds[!vapply(conds, is.null, logical(1))]
+  procs      <- procs[!vapply(procs, is.null, logical(1))]
+  
+  # Helpers to extract simple fields --------------------------------------------
+  get_ref_id <- function(ref) {  # e.g., "Patient/123" -> "123"
+    if (is.null(ref)) return(NA_character_)
+    sub("^.*/", "", ref)
+  }
+  first_code <- function(coding) {  # first code from coding array
+    if (is.null(coding) || !length(coding)) return(NA_character_)
+    val <- coding[[1]]$code
+    if (is.null(val)) NA_character_ else as.character(val)
+  }
+  first_text <- function(x) {
+    if (is.null(x)) return(NA_character_)
+    if (!is.null(x$text)) return(as.character(x$text))
+    NA_character_
+  }
+  
+  # Build small tables -----------------------------------------------------------
+  pat_df <- if (length(patients)) {
+    data.frame(
+      patient_id = vapply(patients, function(p) as.character(p$id %||% NA), character(1)),
+      gender     = vapply(patients, function(p) as.character(p$gender %||% NA), character(1)),
+      birth_date = vapply(patients, function(p) as.character(p$birthDate %||% NA), character(1)),
+      stringsAsFactors = FALSE
+    )
+  } else data.frame(patient_id=character(), gender=character(), birth_date=character())
+  
+  enc_df <- if (length(encounters)) {
+    data.frame(
+      enc_id        = vapply(encounters, function(e) as.character(e$id %||% NA), character(1)),
+      patient_id    = vapply(encounters, function(e) get_ref_id(e$subject$reference %||% NA), character(1)),
+      admission_date= vapply(encounters, function(e) as.character(e$period$start %||% NA), character(1)),
+      discharge_date= vapply(encounters, function(e) as.character(e$period$end   %||% NA), character(1)),
+      reason_text   = vapply(encounters, function(e) first_text(e$reasonCode[[1]] %||% NULL), character(1)),
+      stringsAsFactors = FALSE
+    )
+  } else data.frame(enc_id=character(), patient_id=character(),
+                    admission_date=character(), discharge_date=character(), reason_text=character())
+  
+  cond_df <- if (length(conds)) {
+    data.frame(
+      patient_id = vapply(conds, function(cn) get_ref_id(cn$subject$reference %||% NA), character(1)),
+      icd        = vapply(conds, function(cn) first_code((cn$code$coding %||% list())[1]), character(1)),
+      an_text    = vapply(conds, function(cn) first_text(cn$code %||% NULL), character(1)),
+      stringsAsFactors = FALSE
+    )
+  } else data.frame(patient_id=character(), icd=character(), an_text=character())
+  
+  proc_df <- if (length(procs)) {
+    data.frame(
+      patient_id = vapply(procs, function(pr) get_ref_id(pr$subject$reference %||% NA), character(1)),
+      ops        = vapply(procs, function(pr) first_code((pr$code$coding %||% list())[1]), character(1)),
+      stringsAsFactors = FALSE
+    )
+  } else data.frame(patient_id=character(), ops=character())
+  
+  # Aggregate condition/procedure codes by patient (semicolon-separated) --------
+  if (nrow(cond_df)) {
+    cond_df <- cond_df |>
+      dplyr::group_by(patient_id) |>
+      dplyr::summarise(
+        icd = paste(unique(na.omit(icd)), collapse = "; "),
+        anamnese = paste(unique(na.omit(an_text)), collapse = "; "),
+        .groups = "drop"
+      )
+  }
+  if (nrow(proc_df)) {
+    proc_df <- proc_df |>
+      dplyr::group_by(patient_id) |>
+      dplyr::summarise(ops = paste(unique(na.omit(ops)), collapse = "; "), .groups = "drop")
+  }
+  
+  # Join: Encounter is the primary (one row per encounter when available) -------
+  if (nrow(enc_df)) {
+    out <- enc_df |>
+      dplyr::left_join(pat_df,  by = "patient_id") |>
+      dplyr::left_join(cond_df, by = "patient_id") |>
+      dplyr::left_join(proc_df, by = "patient_id") |>
+      dplyr::mutate(
+        anamnese = dplyr::coalesce(anamnese, reason_text)
+      ) |>
+      dplyr::select(patient_id, gender, birth_date,
+                    admission_date, discharge_date, icd, ops, anamnese)
+  } else {
+    # Fallback: no Encounter -> one row per patient from Patient/Condition/Procedure
+    out <- dplyr::full_join(pat_df, cond_df, by = "patient_id") |>
+      dplyr::full_join(proc_df, by = "patient_id") |>
+      dplyr::mutate(admission_date = NA_character_,
+                    discharge_date = NA_character_) |>
+      dplyr::select(patient_id, gender, birth_date,
+                    admission_date, discharge_date, icd, ops, anamnese)
+  }
+  
+  # Normalize date columns to Date where possible
+  for (dc in c("birth_date","admission_date","discharge_date")) {
+    if (dc %in% names(out)) {
+      out[[dc]] <- suppressWarnings(as.Date(out[[dc]]))
+    }
+  }
+  out
+}
+# ================== END ROBUST JSON / FHIR READERS (DROP-IN) ====================
+
 
 # ---- UI injector: call inside bs4DashBody(...) once as modern_ui() ------------
 modern_ui <- function(){
@@ -521,6 +708,72 @@ standardize_gender_vec <- function(x, map) {
   out
 }
 
+# ===================== KS helpers (DROP-IN replacement) =====================
+
+# P-Wert robust formatieren (Unterlauf zeigen statt "0e+00")
+fmt_p <- function(p) {
+  if (is.na(p)) return("NA")
+  if (p < .Machine$double.xmin) {
+    paste0("< ", format(.Machine$double.xmin, scientific = TRUE))
+  } else {
+    format(p, digits = 17, scientific = TRUE, trim = TRUE)
+  }
+}
+
+# Asymptotischer 2-Stichproben-KS-Test + Effektmaße
+ks_test_asymp <- function(x, y) {
+  x <- x[is.finite(x)]
+  y <- y[is.finite(y)]
+  # KS braucht Variabilität auf beiden Seiten
+  if (length(unique(x)) < 2 || length(unique(y)) < 2) {
+    return(list(p.value = NA_real_, statistic = NA_real_, n_eff = NA_real_, z = NA_real_))
+  }
+  res <- tryCatch(stats::ks.test(x, y, exact = FALSE), error = function(e) NULL)
+  if (is.null(res)) {
+    return(list(p.value = NA_real_, statistic = NA_real_, n_eff = NA_real_, z = NA_real_))
+  }
+  D <- unname(res$statistic)
+  n_eff <- length(x) * length(y) / (length(x) + length(y))
+  z <- sqrt(n_eff) * D
+  list(p.value = unname(res$p.value), statistic = D, n_eff = n_eff, z = z)
+}
+
+# Behalte API-Namen bei, damit bestehende Aufrufe weiter funktionieren
+ks_pvalue_pair <- function(x, y) {
+  ks_test_asymp(x, y)$p.value
+}
+# (fmt_sci darf bleiben, wird aber für KS nicht mehr verwendet)
+# ============================================================================ 
+
+# --- Chi-square & KS interpretation helpers ------------------------------------
+
+# Cramér's V from a 2D contingency table
+cramers_v_tbl <- function(tbl) {
+  if (length(dim(tbl)) != 2L || any(dim(tbl) < 2)) {
+    return(list(v = NA_real_, p = NA_real_, chi2 = NA_real_, df = NA_real_, n = sum(tbl)))
+  }
+  chi <- suppressWarnings(tryCatch(chisq.test(tbl, correct = FALSE), error = function(e) NULL))
+  if (is.null(chi)) {
+    return(list(v = NA_real_, p = NA_real_, chi2 = NA_real_, df = NA_real_, n = sum(tbl)))
+  }
+  n  <- sum(tbl)
+  r  <- nrow(tbl)
+  c  <- ncol(tbl)
+  v  <- sqrt(as.numeric(chi$statistic) / (n * min(r - 1, c - 1)))
+  list(v = as.numeric(v), p = as.numeric(chi$p.value), chi2 = as.numeric(chi$statistic),
+       df = as.numeric(chi$parameter), n = n)
+}
+
+# Simple bands for effect sizes (used in interpretation box)
+ks_band <- function(D) {
+  if (is.na(D)) return("n/a")
+  if (D < 0.05) "small" else if (D < 0.10) "noticeable" else "substantial"
+}
+cramer_band <- function(v) {
+  if (is.na(v)) return("n/a")
+  if (v < 0.10) "small" else if (v < 0.30) "medium" else if (v < 0.50) "large" else "very large"
+}
+###############################################################################
 
 
 ###############################################################################
@@ -1191,7 +1444,14 @@ ui <- bs4DashPage(
             ),
             
             br(),
+            htmlOutput("ks_exact_value"),
+            br(),
+            
+            br(),
             DTOutput("adhoc_compare_table"),
+            br(),
+            h4("Short interpretation"),
+            htmlOutput("adhoc_interpret_box"),
             br(),
             
             # NEW: Download button for the comparison result
@@ -1427,23 +1687,25 @@ server <- function(input, output, session){
       } else if (input$file_type == "JSON") {
         req(input$file_json)
         df <- tryCatch({
-          jsonlite::fromJSON(input$file_json$datapath, flatten = TRUE)
-        }, error = function(e) NULL)
-        if (is.null(df)) {
-          showNotification("Error reading JSON file.", type="error")
-          return()
-        }
+          read_json_tabular(input$file_json$datapath)
+        }, error = function(e) {
+          showNotification(paste("JSON parsing error:", e$message), type = "error")
+          NULL
+        })
+        if (is.null(df)) return()
         rv$raw_data <- as.data.frame(df)
         
       } else if (input$file_type == "FHIR") {
         req(input$file_fhir)
-        # demo stub
-        df <- data.frame(
-          patient_id = c("FHIR-1","FHIR-2"),
-          gender     = c("male","female"),
-          stringsAsFactors = FALSE
-        )
-        rv$raw_data <- df
+        df <- tryCatch({
+          read_fhir_tabular(input$file_fhir$datapath)  # expects FHIR JSON Bundle
+        }, error = function(e) {
+          showNotification(paste("FHIR parsing error:", e$message), type = "error")
+          NULL
+        })
+        if (is.null(df)) return()
+        rv$raw_data <- as.data.frame(df)
+        
       }
       
       if (!is.null(rv$raw_data)) {
@@ -2778,16 +3040,18 @@ server <- function(input, output, session){
   ############################################################################
   # STEP 6: DATA ANONYMIZATION METRICS & EXTENDED ANALYSIS
   ############################################################################
+  # STEP 6: DATA ANONYMIZATION METRICS & EXTENDED ANALYSIS
+  # Helper to read any uploaded anonymized file (pure; returns data.frame or NULL)
   read_uploaded_any <- function(type,
-                                csv_file    = NULL, csv_header = TRUE, csv_sep = ",",
-                                xls_file    = NULL, xls_sheet = 1,
-                                json_file   = NULL,
-                                fhir_file   = NULL) {
-    # Returns a data.frame or NULL on failure
+                                csv_file = NULL, csv_header = TRUE, csv_sep = ",",
+                                xls_file = NULL, xls_sheet = 1,
+                                json_file = NULL,
+                                fhir_file = NULL) {
     out <- NULL
     if (type == "CSV/TXT" && !is.null(csv_file)) {
       out <- tryCatch({
-        data.table::fread(csv_file$datapath, header = csv_header, sep = csv_sep, data.table = FALSE, showProgress = TRUE)
+        data.table::fread(csv_file$datapath, header = csv_header, sep = csv_sep,
+                          data.table = FALSE, showProgress = TRUE)
       }, error = function(e) NULL)
     } else if (type == "Excel" && !is.null(xls_file)) {
       out <- tryCatch({
@@ -2795,20 +3059,26 @@ server <- function(input, output, session){
       }, error = function(e) NULL)
     } else if (type == "JSON" && !is.null(json_file)) {
       out <- tryCatch({
-        as.data.frame(jsonlite::fromJSON(json_file$datapath, flatten = TRUE))
+        read_json_tabular(json_file$datapath)
       }, error = function(e) NULL)
     } else if (type == "FHIR" && !is.null(fhir_file)) {
-      # Demo stub only
-      out <- data.frame(patient_id = c("FHIR-ANON-1","FHIR-ANON-2"), gender = c("male","female"))
+      out <- tryCatch({
+        read_fhir_tabular(fhir_file$datapath)
+      }, error = function(e) NULL)
+      # Optional demo fallback if parsing failed:
+      if (is.null(out)) {
+        out <- data.frame(patient_id = c("FHIR-ANON-1","FHIR-ANON-2"),
+                          gender = c("male","female"),
+                          stringsAsFactors = FALSE)
+      }
     }
     out
   }
-  ############################################################################
   
-  observeEvent(input$btn_load_anonym,{
+  # Load anonymized file (this MUST be outside the helper and inside server)
+  observeEvent(input$btn_load_anonym, {
     wrap_load_anon({
       req(input$anon_file_type)
-      
       df_anon <- switch(
         input$anon_file_type,
         "CSV/TXT" = read_uploaded_any("CSV/TXT",
@@ -2830,7 +3100,7 @@ server <- function(input, output, session){
         return()
       }
       
-      # unify columns same as original mapping (safe if some are missing)
+      # unify columns using the original mapping
       data_anon_unified <- df_anon
       if (length(rv$mapping)) {
         for (std_col in names(rv$mapping)) {
@@ -2840,12 +3110,10 @@ server <- function(input, output, session){
           }
         }
       }
-      
       rv$anonym_data <- data_anon_unified
       showNotification("Anonymized data loaded. You can now use Ad-hoc Column Comparison.", type = "message")
     })
   })
-  
   
   
   # New Output: View Anonymized Data
@@ -2869,56 +3137,68 @@ server <- function(input, output, session){
     datatable(df_cols, options=list(pageLength=10, scrollX=TRUE))
   })
   
-  # New Output: Extended Numeric Analysis
+  # ============ Extended Numeric Analysis (adds D & sqrt(n_eff)*D, fmt_p) ============
   output$numeric_analysis <- renderDT({
     req(rv$mapped_data, rv$anonym_data)
+    
     df_orig <- as.data.frame(rv$mapped_data)
     df_anon <- as.data.frame(rv$anonym_data)
-    common_cols <- intersect(colnames(df_orig), colnames(df_anon))
-    numeric_cols <- common_cols[sapply(df_orig[, common_cols, drop=FALSE], is.numeric)]
-    if(length(numeric_cols)==0) return(datatable(data.frame(Message="No common numeric columns."), options=list(dom='t')))
     
-    res_list <- lapply(numeric_cols, function(col){
-      orig <- df_orig[[col]]
-      anon <- df_anon[[col]]
+    common_cols  <- intersect(colnames(df_orig), colnames(df_anon))
+    numeric_cols <- common_cols[sapply(df_orig[, common_cols, drop = FALSE], function(x) is.numeric(x) || is.integer(x))]
+    
+    if (length(numeric_cols) == 0) {
+      return(DT::datatable(data.frame(Message = "No common numeric columns."), options = list(dom = "t")))
+    }
+    
+    force_num <- function(v) { if (is.numeric(v)) v else suppressWarnings(as.numeric(v)) }
+    safe_stat <- function(fun, v) { v <- v[is.finite(v)]; if (length(v) == 0) NA_real_ else fun(v, na.rm = TRUE) }
+    
+    res_list <- lapply(numeric_cols, function(col) {
+      orig <- force_num(df_orig[[col]])
+      anon <- force_num(df_anon[[col]])
       
-      orig_min <- min(orig, na.rm=TRUE)
-      anon_min <- min(anon, na.rm=TRUE)
-      orig_max <- max(orig, na.rm=TRUE)
-      anon_max <- max(anon, na.rm=TRUE)
-      orig_sd  <- sd (orig, na.rm=TRUE)
-      anon_sd  <- sd (anon, na.rm=TRUE)
-      
-      ks_p <- tryCatch({
-        if(length(unique(na.omit(orig)))>1 && length(unique(na.omit(anon)))>1)
-          ks.test(na.omit(orig), na.omit(anon))$p.value
-        else NA
-      }, error=function(e) NA)
-      
-      # NEW: N (total) and Distinct counts
-      orig_n_total <- length(orig)
-      anon_n_total <- length(anon)
-      orig_distinct <- length(unique(na.omit(orig)))
-      anon_distinct <- length(unique(na.omit(anon)))
+      ks_out <- ks_test_asymp(orig, anon)
       
       data.frame(
-        Column         = col,
-        Orig_N_total   = orig_n_total,
-        Anon_N_total   = anon_n_total,
-        N_total_Delta  = anon_n_total - orig_n_total,
-        Orig_Distinct  = orig_distinct,
-        Anon_Distinct  = anon_distinct,
-        Distinct_Delta = anon_distinct - orig_distinct,
-        Orig_Min = orig_min,  Anon_Min = anon_min,  Min_Shift = anon_min - orig_min,
-        Orig_Max = orig_max,  Anon_Max = anon_max,  Max_Shift = anon_max - orig_max,
-        Orig_SD  = orig_sd,   Anon_SD  = anon_sd,   SD_Shift  = anon_sd  - orig_sd,
-        KS_p_value     = round(ks_p, 4),
-        stringsAsFactors=FALSE
+        Column          = col,
+        Orig_N_total    = length(orig),
+        Anon_N_total    = length(anon),
+        N_total_Delta   = length(anon) - length(orig),
+        
+        Orig_Distinct   = length(unique(orig[is.finite(orig)])),
+        Anon_Distinct   = length(unique(anon[is.finite(anon)])),
+        Distinct_Delta  = length(unique(anon[is.finite(anon)])) - length(unique(orig[is.finite(orig)])),
+        
+        Orig_Min        = safe_stat(min,  orig),
+        Anon_Min        = safe_stat(min,  anon),
+        Min_Shift       = safe_stat(min,  anon) - safe_stat(min,  orig),
+        
+        Orig_Max        = safe_stat(max,  orig),
+        Anon_Max        = safe_stat(max,  anon),
+        Max_Shift       = safe_stat(max,  anon) - safe_stat(max,  orig),
+        
+        Orig_Mean       = safe_stat(mean, orig),
+        Anon_Mean       = safe_stat(mean, anon),
+        Mean_Shift      = safe_stat(mean, anon) - safe_stat(mean, orig),
+        
+        Orig_SD         = safe_stat(sd,   orig),
+        Anon_SD         = safe_stat(sd,   anon),
+        SD_Shift        = safe_stat(sd,   anon) - safe_stat(sd,   orig),
+        
+        KS_D            = ks_out$statistic,
+        KS_Z_sqrtNeffD  = ks_out$z,
+        KS_p_value      = fmt_p(ks_out$p.value),
+        stringsAsFactors = FALSE
       )
     })
+    
     res_df <- do.call(rbind, res_list)
-    datatable(res_df, options=list(pageLength=10, scrollX=TRUE))
+    DT::datatable(res_df, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
   })
+  # =============================================================================== 
+  
+  
   
   # New Output: Extended Categorical Analysis
   output$categorical_analysis <- renderDT({
@@ -2993,121 +3273,272 @@ server <- function(input, output, session){
   })
   
   # Main comparison: runs when the button is clicked
+  # =================== Ad-hoc Column Comparison (REPLACEMENT) ===================
   observeEvent(input$btn_compare_cols, {
-    req(rv$mapped_data, rv$anonym_data,
-        input$compare_orig_col, input$compare_anon_col)
+    req(rv$mapped_data, rv$anonym_data, input$compare_orig_col, input$compare_anon_col)
     
     col_o <- input$compare_orig_col
     col_a <- input$compare_anon_col
     orig  <- rv$mapped_data[[col_o]]
     anon  <- rv$anonym_data[[col_a]]
     
-    if (is.numeric(orig) && is.numeric(anon)) {
-      # ---------- numeric metrics ----------
-      ks_p <- NA
-      if (length(unique(na.omit(orig))) > 1 &&
-          length(unique(na.omit(anon))) > 1) {
-        ks_p <- round(ks.test(na.omit(orig), na.omit(anon))$p.value, 4)
-      }
+    is_num_o <- is.numeric(orig)
+    is_num_a <- is.numeric(anon)
+    
+    if (is_num_o && is_num_a) {
+      # ---------- NUMERIC ----------
+      # KS (asymptotisch) + Effektmaße
+      ks_out <- ks_test_asymp(na.omit(orig), na.omit(anon))
       
       n_total_o <- length(orig)
       n_total_a <- length(anon)
       n_dist_o  <- length(unique(na.omit(orig)))
       n_dist_a  <- length(unique(na.omit(anon)))
       
+      # Ergebnis-Tabelle inkl. Effektmaße und "asymptotic; ties present"
       res <- data.frame(
         Metric     = c("N total", "Distinct count",
-                       "Min", "Max", "Mean", "SD", "KS p-value"),
+                       "Min", "Max", "Mean", "SD",
+                       "KS D (effect size)", "sqrt(n_eff)*D", 
+                       "KS p-value (asymptotic; ties present)"),
         Original   = c(n_total_o, n_dist_o,
                        min(orig, na.rm = TRUE),
                        max(orig, na.rm = TRUE),
                        mean(orig, na.rm = TRUE),
                        sd  (orig, na.rm = TRUE),
-                       ks_p),
+                       ks_out$statistic, ks_out$z,
+                       fmt_p(ks_out$p.value)),
         Anonymized = c(n_total_a, n_dist_a,
                        min(anon, na.rm = TRUE),
                        max(anon, na.rm = TRUE),
                        mean(anon, na.rm = TRUE),
                        sd  (anon, na.rm = TRUE),
-                       ""),
+                       "", "", ""),
         Shift      = c(n_total_a - n_total_o,
                        n_dist_a  - n_dist_o,
                        min(anon, na.rm = TRUE) - min(orig, na.rm = TRUE),
                        max(anon, na.rm = TRUE) - max(orig, na.rm = TRUE),
                        mean(anon, na.rm = TRUE) - mean(orig, na.rm = TRUE),
                        sd  (anon, na.rm = TRUE) - sd  (orig, na.rm = TRUE),
-                       ""),
+                       "", "", ""),
         check.names = FALSE
       )
       
       rv$adhoc_compare_df <- res
       rv$adhoc_compare_meta <- list(
-        type = "numeric",
-        mean_orig = mean(orig, na.rm = TRUE),
-        mean_anon = mean(anon, na.rm = TRUE),
-        sd_orig   = sd  (orig, na.rm = TRUE),
-        sd_anon   = sd  (anon, na.rm = TRUE),
-        ks_p      = ks_p
+        type     = "numeric",
+        mean_orig= mean(orig, na.rm = TRUE),
+        mean_anon= mean(anon, na.rm = TRUE),
+        sd_orig  = sd  (orig, na.rm = TRUE),
+        sd_anon  = sd  (anon, na.rm = TRUE),
+        ks_p_raw = ks_out$p.value,
+        ks_D     = ks_out$statistic,
+        ks_z     = ks_out$z,
+        ks_n_eff = ks_out$n_eff
       )
       
+      output$ks_exact_value <- renderUI({
+        m <- rv$adhoc_compare_meta
+        if (is.null(m) || m$type != "numeric") return(NULL)
+        if (is.na(m$ks_p_raw)) {
+          HTML("<em>KS test not computed (constant/invalid series).</em>")
+        } else {
+          htmltools::HTML(paste0(
+            "<b>KS p-value (asymptotic; ties present):</b> <code>",
+            fmt_p(m$ks_p_raw), "</code>",
+            " &nbsp; | &nbsp; <b>D:</b> ",
+            format(m$ks_D, digits = 6),
+            " &nbsp; | &nbsp; <b>√(n<sub>eff</sub>)·D:</b> ",
+            format(m$ks_z, digits = 6)
+          ))
+        }
+      })
+      
     } else {
-      # ---------- categorical-like metrics ----------
-      # treat as character for distinct counting (ignore empty)
+      # ---------- CATEGORICAL / mixed ----------
       orig_chr <- as.character(orig)
       anon_chr <- as.character(anon)
       
       orig_missing <- sum(is.na(orig_chr) | orig_chr == "")
       anon_missing <- sum(is.na(anon_chr) | anon_chr == "")
       
-      lv_orig <- unique(orig_chr[!is.na(orig_chr) & orig_chr != ""])
-      lv_anon <- unique(anon_chr[!is.na(anon_chr) & anon_chr != ""])
-      overlap <- length(intersect(lv_orig, lv_anon)) / length(union(lv_orig, lv_anon))
+      lv_orig <- unique(orig_chr[!is.na(orig_chr) & nzchar(orig_chr)])
+      lv_anon <- unique(anon_chr[!is.na(anon_chr) & nzchar(anon_chr)])
+      overlap <- length(intersect(lv_orig, lv_anon)) / max(1L, length(union(lv_orig, lv_anon)))
       
-      tab_o <- table(orig_chr)
-      tab_a <- table(anon_chr)
-      common_levels <- intersect(names(tab_o), names(tab_a))
-      chi_p <- if (length(common_levels) > 1) {
-        suppressWarnings(
-          tryCatch(chisq.test(rbind(tab_o[common_levels],
-                                    tab_a[common_levels]))$p.value,
-                   error = function(e) NA))
-      } else NA
+      # Build aligned 2 x K table for Chi-square and Cramér's V
+      tab_o <- table(orig_chr, useNA = "no")
+      tab_a <- table(anon_chr, useNA = "no")
+      levels_u <- union(names(tab_o), names(tab_a))
+      tab_o_u <- tab_o[levels_u]; tab_o_u[is.na(tab_o_u)] <- 0L
+      tab_a_u <- tab_a[levels_u]; tab_a_u[is.na(tab_a_u)] <- 0L
+      tbl <- rbind(Original = as.numeric(tab_o_u), Anonymized = as.numeric(tab_a_u))
+      colnames(tbl) <- levels_u
       
-      # NEW: add total N and distinct counts
+      vstats <- cramers_v_tbl(tbl)
+      chi_p  <- vstats$p
+      v_val  <- vstats$v
+      
+      # Present a compact result table (and format p safely)
       extra_rows <- data.frame(
         Statistic = c("Total entries (orig)", "Total entries (anon)",
                       "Distinct levels (orig)", "Distinct levels (anon)"),
         Value     = c(length(orig_chr), length(anon_chr),
-                      length(lv_orig), length(lv_anon)),
+                      length(lv_orig),   length(lv_anon)),
         check.names = FALSE
       )
-      
       base_rows <- data.frame(
-        Statistic = c("Orig missing", "Anon missing",
-                      "Missing Δ", "Level overlap", "Chi-Sq p"),
-        Value     = c(orig_missing,
-                      anon_missing,
-                      anon_missing - orig_missing,
-                      overlap,
-                      chi_p),
+        Statistic = c("Orig missing", "Anon missing", "Missing Δ",
+                      "Level overlap", "Cramér's V (effect size)",
+                      "Chi-Sq p-value (marginal distribution)"),
+        Value     = c(orig_missing, anon_missing, anon_missing - orig_missing,
+                      overlap, v_val, fmt_p(chi_p)),
         check.names = FALSE
       )
       
-      res <- rbind(extra_rows, base_rows)
-      
-      rv$adhoc_compare_df <- res
+      rv$adhoc_compare_df   <- rbind(extra_rows, base_rows)
       rv$adhoc_compare_meta <- list(
-        type = "categorical",
+        type       = "categorical",
         missing_delta = anon_missing - orig_missing,
         overlap       = as.numeric(overlap),
-        chi_p         = as.numeric(chi_p)
+        chi_p         = as.numeric(chi_p),
+        cramer_v      = as.numeric(v_val)
       )
+      
+      output$ks_exact_value <- renderUI({ NULL })  # only shown for numeric
     }
     
     output$adhoc_compare_table <- renderDT({
-      datatable(rv$adhoc_compare_df, options = list(dom = "t", scrollX = TRUE))
+      DT::datatable(rv$adhoc_compare_df, options = list(dom = "t", scrollX = TRUE))
     })
+    # =================== SIMPLER, PLAIN-LANGUAGE INTERPRETATION BOX ===================
+    output$adhoc_interpret_box <- renderUI({
+      m <- rv$adhoc_compare_meta
+      if (is.null(m)) return(HTML("<em>No interpretation yet. Run a comparison above.</em>"))
+      
+      pct <- function(x) if (is.na(x)) "n/a" else paste0(sprintf("%d", round(100 * x)), "%")
+      numf <- function(x, d = 2) if (is.na(x)) "n/a" else formatC(x, digits = d, format = "f", drop0trailing = TRUE)
+      
+      if (identical(m$type, "numeric")) {
+        # --- inputs from meta
+        D          <- suppressWarnings(as.numeric(m$ks_D))
+        z          <- suppressWarnings(as.numeric(m$ks_z))
+        mean_shift <- suppressWarnings(as.numeric(m$mean_anon - m$mean_orig))
+        sd_shift   <- suppressWarnings(as.numeric(m$sd_anon - m$sd_orig))
+        sd_orig    <- suppressWarnings(as.numeric(m$sd_orig))
+        
+        # --- simple bands
+        rel_mean <- if (isTRUE(sd_orig > 0)) abs(mean_shift) / sd_orig else NA_real_
+        mean_band <-
+          if (is.na(rel_mean)) "unknown"
+        else if (rel_mean <= 0.10) "tiny"
+        else if (rel_mean <= 0.30) "moderate"
+        else "big"
+        
+        spread_pct <- if (isTRUE(sd_orig != 0)) 100 * (sd_shift / sd_orig) else NA_real_
+        spread_band <-
+          if (is.na(spread_pct)) "unknown"
+        else if (abs(spread_pct) <= 10) "about the same"
+        else if (spread_pct > 10) "more spread out"
+        else "more squeezed"
+        
+        shape_band <-
+          if (is.na(D)) "unknown"
+        else if (D < 0.05) "small"
+        else if (D < 0.10) "clear"
+        else "large"
+        
+        # --- one clear verdict (traffic light)
+        verdict <-
+          if (!is.na(D) && D < 0.05 &&
+              (is.na(rel_mean) || rel_mean <= 0.10) &&
+              (is.na(spread_pct) || abs(spread_pct) <= 10)) {
+            "✅ No meaningful change"
+          } else if (!is.na(D) && D < 0.10 &&
+                     (is.na(rel_mean) || rel_mean <= 0.30)) {
+            "⚠️ Noticeable change"
+          } else {
+            "❌ Big change"
+          }
+        
+        # --- “is this likely real or just noise?” (no stats words)
+        real_change_msg <-
+          if (is.na(z)) "n/a"
+        else if (z < 1.36) "Probably just random noise"
+        else if (z < 1.63) "Likely a real difference"
+        else "Almost certainly a real difference"
+        
+        HTML(paste0(
+          "<ul>",
+          "<li><b>Verdict:</b> ", verdict, "</li>",
+          "<li><b>Typical value (average):</b> changed by ", numf(mean_shift),
+          " (", mean_band, ").</li>",
+          "<li><b>Spread (how variable):</b> ", spread_band,
+          if (!is.na(spread_pct)) paste0(" (", sprintf("%+d%%", round(spread_pct)), ")") else "", ".</li>",
+          "<li><b>Overall shape:</b> at most about ", if (!is.na(D)) sprintf("%d%%", round(100 * D)) else "n/a",
+          " of the data look shifted.</li>",
+          "<li><b>Real change or just noise?</b> ", real_change_msg, ".</li>",
+          "</ul>",
+          "<small><b>How to read:</b> Green = safe to use as-is. Yellow = keep an eye on it. Red = expect analysis results to change.</small>"
+        ))
+        
+      } else {
+        # ------------------------------- categorical -------------------------------
+        v        <- suppressWarnings(as.numeric(m$cramer_v))
+        p        <- suppressWarnings(as.numeric(m$chi_p))
+        overlap  <- suppressWarnings(as.numeric(m$overlap))
+        miss_d   <- suppressWarnings(as.numeric(m$missing_delta))
+        
+        # We’ll estimate “percent extra blanks” against total rows as a simple proxy.
+        denom <- tryCatch(nrow(rv$mapped_data), error = function(e) NA_integer_)
+        miss_pct <- if (!is.na(denom) && denom > 0 && !is.na(miss_d)) 100 * miss_d / denom else NA_real_
+        
+        mix_band <-
+          if (is.na(v)) "unknown"
+        else if (v < 0.10) "small"
+        else if (v < 0.30) "medium"
+        else "large"
+        
+        overlap_txt <- if (is.na(overlap)) "n/a" else sprintf("%d%%", round(100 * overlap))
+        
+        # verdict (traffic light)
+        verdict <-
+          if ((is.na(v) || v < 0.10) &&
+              (is.na(overlap) || overlap >= 0.80) &&
+              (is.na(miss_pct) || miss_pct <= 5)) {
+            "✅ No meaningful change"
+          } else if ((is.na(v) || v < 0.30) &&
+                     (is.na(overlap) || overlap >= 0.60) &&
+                     (is.na(miss_pct) || miss_pct <= 10)) {
+            "⚠️ Noticeable change"
+          } else {
+            "❌ Big change"
+          }
+        
+        real_change_msg <-
+          if (is.na(p)) "n/a"
+        else if (p < 0.01) "Almost certainly a real difference"
+        else if (p < 0.05) "Likely a real difference"
+        else "Probably just random noise"
+        
+        HTML(paste0(
+          "<ul>",
+          "<li><b>Verdict:</b> ", verdict, "</li>",
+          "<li><b>Category mix:</b> ", mix_band, " shift (common labels got reweighted).</li>",
+          "<li><b>Shared labels kept:</b> ", overlap_txt, ".</li>",
+          "<li><b>Extra blanks after anonymization:</b> ",
+          if (!is.na(miss_d)) paste0("+", miss_d, if (!is.na(miss_pct)) paste0(" (~", sprintf("%d%%", round(miss_pct)), ")") else "") else "n/a",
+          ".</li>",
+          "<li><b>Real change or just noise?</b> ", real_change_msg, ".</li>",
+          "</ul>",
+          "<small><b>How to read:</b> Green = categories basically the same. Yellow = some shifts. Red = many labels changed or got removed.</small>"
+        ))
+      }
+    })
+    # =============================================================================== 
     
+    
+    # Empfehlungen (unchanged; nutzt m$type etc.)
     output$adhoc_reco <- renderUI({
       m <- rv$adhoc_compare_meta
       if (is.null(m)) return(HTML("<em>No recommendations yet.</em>"))
@@ -3116,7 +3547,7 @@ server <- function(input, output, session){
         mean_shift <- m$mean_anon - m$mean_orig
         rel_shift  <- ifelse(isTRUE(m$sd_orig > 0), abs(mean_shift) / m$sd_orig, NA_real_)
         sd_shift   <- m$sd_anon - m$sd_orig
-        ks_flag    <- !is.na(m$ks_p) && m$ks_p < 0.05
+        ks_flag <- !is.na(m$ks_p_raw) && m$ks_p_raw < 0.05
         
         bullets <- c()
         if (!is.na(rel_shift) && rel_shift <= 0.1 && !ks_flag) {
@@ -3132,17 +3563,15 @@ server <- function(input, output, session){
           bullets <- c(bullets, "<b>Utility:</b> Variability altered; recalibrate downstream models or consider robust methods.")
         }
         actions <- c(
-          "Review anonymization settings that affect this variable (e.g., rounding/jittering/age-banding).",
-          "If KS p-value < 0.05: consider relaxing generalization for this column or increasing k only on less critical QIs.",
-          "Validate key clinical thresholds (e.g., cut-offs) still classify patients consistently.",
-          "Document observed shifts (mean/variance/KS) in the data release notes."
+          "Review anonymization settings for this variable (rounding/jittering/banding).",
+          "If KS p-value < 0.05: relax generalization here or adjust k on less critical QIs.",
+          "Check important clinical thresholds still classify consistently.",
+          "Document observed shifts (mean/variance/KS) in release notes."
         )
         
-        HTML(paste0(
-          "<ul><li>", paste(bullets, collapse="</li><li>"),
-          "</li></ul><b>Next actions:</b><ul><li>",
-          paste(actions, collapse="</li><li>"), "</li></ul>"
-        ))
+        HTML(paste0("<ul><li>", paste(bullets, collapse="</li><li>"),
+                    "</li></ul><b>Next actions:</b><ul><li>",
+                    paste(actions, collapse="</li><li>"), "</li></ul>"))
         
       } else {
         miss_flag <- !is.na(m$missing_delta) && m$missing_delta > 0.05 * nrow(rv$mapped_data)
@@ -3153,31 +3582,30 @@ server <- function(input, output, session){
         if (!overlap_flag && !chi_flag && !miss_flag) {
           bullets <- c(bullets, "<b>Fitness:</b> High — category structure is well preserved.")
         } else if (overlap_flag || chi_flag) {
-          bullets <- c(bullets, "<b>Fitness:</b> Moderate — category frequencies changed; monitor analyses sensitive to prevalence.")
+          bullets <- c(bullets, "<b>Fitness:</b> Moderate — category frequencies changed; monitor prevalence-sensitive analyses.")
         } else {
           bullets <- c(bullets, "<b>Fitness:</b> Low — loss of categories or heavy suppression detected.")
         }
         if (!miss_flag) {
-          bullets <- c(bullets, "<b>Utility:</b> Minimal added missingness; downstream imputations likely unnecessary.")
+          bullets <- c(bullets, "<b>Utility:</b> Minimal added missingness; imputations likely unnecessary.")
         } else {
           bullets <- c(bullets, "<b>Utility:</b> Increased missingness; plan simple imputations or sensitivity analyses.")
         }
         actions <- c(
-          "Reduce suppression for rare but clinically important categories (e.g., use grouping rather than removal).",
-          "Align value recoding lists between original and anonymized datasets to maximize level overlap.",
-          "If Chi-sq p < 0.05: review frequency smoothing/PRAM settings to better preserve marginal distributions.",
-          "Communicate category mapping (before/after) to end-users."
+          "Reduce suppression for rare but important categories (grouping instead of removal).",
+          "Align recoding lists between original and anonymized to maximize level overlap.",
+          "If Chi-sq p < 0.05: review smoothing/PRAM to better preserve marginals.",
+          "Publish a value-mapping before/after table."
         )
         
-        HTML(paste0(
-          "<ul><li>", paste(bullets, collapse="</li><li>"),
-          "</li></ul><b>Next actions:</b><ul><li>",
-          paste(actions, collapse="</li><li>"), "</li></ul>"
-        ))
+        HTML(paste0("<ul><li>", paste(bullets, collapse="</li><li>"),
+                    "</li></ul><b>Next actions:</b><ul><li>",
+                    paste(actions, collapse="</li><li>"), "</li></ul>"))
       }
     })
   })
-  # ---------------------------------------------------------------------
+  # ============================================================================== 
+  
   
 }
 
