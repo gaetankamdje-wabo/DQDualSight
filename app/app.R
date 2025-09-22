@@ -1266,7 +1266,7 @@ ui <- bs4DashPage(
           bs4ValueBox(
             width=4,
             value=textOutput("vb_records_affected"),
-            subtitle="Records Affected",
+            subtitle="Patient IDs Affected",
             icon=icon("user-injured"),
             color="warning"
           )
